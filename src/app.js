@@ -15,10 +15,17 @@ const app = express();
 
 // Security middleware
 app.use(helmet());
-app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || 'http://localhost:3000',
-  credentials: true
-}));
+
+// CORS configuration
+const corsOptions = {
+  origin: '*',
+  credentials: true,
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+// Enable CORS
+app.use(cors(corsOptions));
 
 // General middleware
 app.use(compression());

@@ -1,0 +1,12 @@
+{
+  "platformName": "Apollo",
+  "scrapeMode": "columns",
+  "selectors": {
+    "name": "span.zp_pHNm5",
+    "role": {
+      "selector": "div.zp_YGDgt span.zp_FEm_X",
+      "processingRule": "takeEveryOther"
+    },
+    "email": "span.zp_xvo3G.zp_JTaUA"
+  }
+}
