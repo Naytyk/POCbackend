@@ -6,6 +6,7 @@
     "companyLinkInRow": "a.txn--text-truncate.txn--width-fit-content",
     "modalReadyElement": "div[role='button'][title='People']",
     "modalContainer": ".route-view-modal-wrapper",
+    "modalCloseButton": "[aria-label='Close Overlay']",
     "singleCompanyConfig": {
       "scrapeMode": "rows",
       "selectors": {
