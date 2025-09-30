@@ -5,6 +5,7 @@
     "companyRow": "div.comp--gridtable__row",
     "companyLinkInRow": "a.txn--text-truncate.txn--width-fit-content",
     "modalReadyElement": "div[role='button'][title='People']",
+    "modalContainer": ".route-view-modal-wrapper",
     "singleCompanyConfig": {
       "scrapeMode": "rows",
       "selectors": {

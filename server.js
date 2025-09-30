@@ -2,17 +2,27 @@ require('dotenv').config();
 const app = require('./src/app');
 const mongoose = require('mongoose');
 
-const PORT = process.env.PORT || 3000;
+// Connect to MongoDB for serverless
+let isConnected = false;
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log('Connected to MongoDB');
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+const connectDB = async () => {
+  if (isConnected) {
+    return;
+  }
+  
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000
     });
-  })
-  .catch(err => {
+    isConnected = true;
+    console.log('Connected to MongoDB');
+  } catch (err) {
     console.error('MongoDB connection error:', err);
-    process.exit(1);
-  });
+  }
+};
+
+// Initialize connection
+connectDB();
+
+// Export for Vercel
+module.exports = app;
