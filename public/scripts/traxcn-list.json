@@ -1,0 +1,30 @@
+{
+  "platformName": "Traxcn List",
+  "scrapeMode": "list-iterate",
+  "selectors": {
+    "companyRow": "div.comp--gridtable__row",
+    "companyLinkInRow": "a.txn--text-truncate.txn--width-fit-content",
+    "modalReadyElement": "div[role='button'][title='People']",
+    "singleCompanyConfig": {
+      "scrapeMode": "rows",
+      "selectors": {
+        "sectionHeader": ".txn--dp-subheader",
+        "targetSections": ["Founders & Key People", "Senior Management"],
+        "sectionContainer": ".comp--gridtable__wrapper-v2",
+        "row": ".comp--gridtable__row",
+        "name": "[data-walk-through-id*='-cell-name']",
+        "role": "[data-walk-through-id*='-cell-designation']",
+        "email": {
+          "action": "clickToReveal",
+          "clickTarget": "span.fa-envelope",
+          "dropdown": ".listDropdown__wrapper:not([style*='display: none'])",
+          "value": "a[href^='mailto:']",
+          "fallback": {
+            "selector": "a[href*='linkedin.com/in/']",
+            "attribute": "href"
+          }
+        }
+      }
+    }
+  }
+}
