@@ -1,31 +1,11 @@
-require('dotenv').config();
-const app = require('./src/app');
-const mongoose = require('mongoose');
+require("dotenv").config();
+const connectDB = require("./src/services/db");
+const app = require("./src/app");
 
-let cached = global.mongoose;
+// Initialize connection once when cold-started
+connectDB();
 
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
-
-async function connectDB() {
-  if (cached.conn) return cached.conn;
-
-  if (!cached.promise) {
-    cached.promise = mongoose.connect(process.env.MONGODB_URI, {
-      bufferCommands: false,
-      serverSelectionTimeoutMS: 5000,
-    }).then((mongoose) => mongoose);
-  }
-
-  cached.conn = await cached.promise;
-  return cached.conn;
-}
-
-connectDB().then(() => {
-  console.log("✅ MongoDB connected");
-}).catch((err) => {
-  console.error("❌ MongoDB connection error:", err);
-});
-
-module.exports = app;
+module.exports = async (req, res) => {
+  await connectDB();   // ✅ ensures DB connection before handling requests
+  return app(req, res);
+};

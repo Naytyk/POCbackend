@@ -1,47 +1,52 @@
-const path = require('path');
-const fs = require('fs');
+// src/controllers/fileController.js
+const path = require("path");
 
-const serveScript = async (req, res, next) => {
-  try {
-    const { filename } = req.params;
-    
-    // Security check - prevent directory traversal
-    if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
-      return res.status(400).json({ error: 'Invalid filename' });
-    }
+// Require all JSON files in scripts folder dynamically
+// JS files will be stored as strings
+const fs = require("fs");
 
-    // Check if user is active
-    if (!req.user.isActive) {
-      return res.status(403).json({ error: 'Account not activated. Contact admin.' });
-    }
+const scriptsDir = path.join(__dirname, "scripts");
 
-    const scriptsPath = process.env.SCRIPTS_PATH || path.join(__dirname, '../../public/scripts');
-    const filePath = path.join(scriptsPath, filename);
+// Build a map of filename => content at startup
+const scripts = {};
 
-    console.log('Attempting to serve script from:', filePath); // Debug log
+// Read all files inside scripts folder
+fs.readdirSync(scriptsDir).forEach((file) => {
+  const ext = path.extname(file).toLowerCase();
 
-    // Check if file exists
-    if (!fs.existsSync(filePath)) {
-      console.log('Script not found at path:', filePath); // Debug log
-      return res.status(404).json({ error: 'Script not found' });
-    }
+  if (ext === ".json") {
+    // Load JSON at build time
+    scripts[file] = require(path.join(scriptsDir, file));
+  } else if (ext === ".js") {
+    // Load JS as string
+    scripts[file] = fs.readFileSync(path.join(scriptsDir, file), "utf8");
+  }
+});
 
-    // Check if it's a JavaScript file
-    if (!filename.endsWith('.json')) {
-      return res.status(400).json({ error: 'Only JavaScript files are served' });
-    }
+const serveScript = async (req, res) => {
+  const { filename } = req.params;
 
-    // Log access
-    console.log(`Script accessed: ${filename} by user: ${req.user.email}`);
+  // Only allow files that exist in scripts folder
+  const scriptContent = scripts[filename];
+  if (!scriptContent) {
+    return res.status(404).json({ error: "Script not found" });
+  }
 
-    // Serve the file
-    res.setHeader('Content-Type', 'application/javascript');
-    res.sendFile(path.resolve(filePath));
-  } catch (error) {
-    next(error);
+  // Auth check
+  if (!req.user?.isActive) {
+    return res.status(403).json({ error: "Account not activated. Contact admin." });
+  }
+
+  // Serve JSON or JS with correct content-type
+  if (filename.endsWith(".json")) {
+    res.setHeader("Content-Type", "application/json");
+    return res.json(scriptContent);
+  } else if (filename.endsWith(".js")) {
+    res.setHeader("Content-Type", "application/javascript");
+    return res.send(scriptContent);
+  } else {
+    return res.status(400).json({ error: "Unsupported file type" });
   }
 };
 
-module.exports = {
-  serveScript
-};
+module.exports = { serveScript };
